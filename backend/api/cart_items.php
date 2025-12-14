@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/api/db.php';
+require __DIR__ . '/db.php';
 
 $sql = "
 CREATE TABLE IF NOT EXISTS cart_items (
