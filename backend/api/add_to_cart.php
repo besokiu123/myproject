@@ -2,24 +2,47 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-include 'db.php';
+require __DIR__ . '/db.php';
 
-$method = $_SERVER['REQUEST_METHOD'];
+$data = json_decode(file_get_contents("php://input"), true);
 
-if ($method == 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    $id = $data['id'];
-    $quantity = $data['quantity'] ?? 1;
+$productId = $data['id'] ?? null;
+$quantity  = $data['quantity'] ?? 1;
 
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
-
-    if (isset($_SESSION['cart'][$id])) {
-        $_SESSION['cart'][$id]['quantity'] += $quantity;
-    } else {
-        $_SESSION['cart'][$id] = ['quantity' => $quantity];
-    }
-
-    echo json_encode(['success' => true]);
+if (!$productId) {
+    echo json_encode(['success' => false, 'message' => 'Missing product id']);
+    exit;
 }
+
+$sessionId = $_SERVER['HTTP_X_SESSION_ID'] ?? uniqid('sess_', true);
+
+// Kiểm tra sản phẩm đã có trong cart chưa
+$stmt = $pdo->prepare("
+    SELECT id, quantity 
+    FROM cart_items 
+    WHERE session_id = ? AND product_id = ?
+");
+$stmt->execute([$sessionId, $productId]);
+$item = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($item) {
+    // Update quantity
+    $stmt = $pdo->prepare("
+        UPDATE cart_items 
+        SET quantity = quantity + ?
+        WHERE id = ?
+    ");
+    $stmt->execute([$quantity, $item['id']]);
+} else {
+    // Insert mới
+    $stmt = $pdo->prepare("
+        INSERT INTO cart_items (session_id, product_id, quantity)
+        VALUES (?, ?, ?)
+    ");
+    $stmt->execute([$sessionId, $productId, $quantity]);
+}
+
+echo json_encode([
+    'success' => true,
+    'session_id' => $sessionId
+]);

@@ -1,5 +1,13 @@
 const API_BASE = 'https://myproject-ww37.onrender.com/api/';
 
+function getSessionId() {
+    let sid = localStorage.getItem('session_id');
+    if (!sid) {
+        sid = 'sess_' + Math.random().toString(36).substring(2);
+        localStorage.setItem('session_id', sid);
+    }
+    return sid;
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     loadProducts();
@@ -36,12 +44,18 @@ function displayProducts(products) {
 }
 
 async function addToCart(id) {
+    const sessionId = getSessionId();
+
     try {
         const response = await fetch(API_BASE + 'add_to_cart.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Session-Id': sessionId
+            },
             body: JSON.stringify({ id, quantity: 1 })
         });
+
         const result = await response.json();
         if (result.success) {
             alert('Đã thêm vào giỏ!');
@@ -50,6 +64,7 @@ async function addToCart(id) {
         console.error('Error adding to cart:', error);
     }
 }
+
 
 async function handleLogin(event) {
     event.preventDefault();
