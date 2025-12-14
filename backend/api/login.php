@@ -1,5 +1,19 @@
 <?php
+// Cho phép mọi nguồn truy cập (thay * bằng domain cụ thể nếu cần)
 header("Access-Control-Allow-Origin: *");
+
+// Cho phép các method bạn sẽ dùng
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+
+// Cho phép các header mà frontend gửi (thêm X-Session-Id nếu bạn gửi header này)
+header("Access-Control-Allow-Headers: Content-Type, X-Session-Id");
+
+// Xử lý preflight request OPTIONS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 header("Content-Type: application/json");
 session_start();
 
