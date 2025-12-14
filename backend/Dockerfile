@@ -1,8 +1,17 @@
-FROM php:8.2-cli
+FROM php:8.2-apache
 
-WORKDIR /app
-COPY . /app
+# Cài thư viện cần cho PostgreSQL
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql
 
-EXPOSE 10000
+# Enable apache rewrite
+RUN a2enmod rewrite
 
-CMD ["php", "-S", "0.0.0.0:10000", "-t", "."]
+# Copy source code
+COPY . /var/www/html/
+
+# Set quyền
+RUN chown -R www-data:www-data /var/www/html
+
+EXPOSE 80
