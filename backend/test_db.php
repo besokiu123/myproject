@@ -1,3 +1,5 @@
 <?php
-require 'db.php';
-echo "✅ KẾT NỐI DATABASE THÀNH CÔNG";
+require __DIR__ . '/api/db.php';
+
+echo "Đã load db.php<br>";
+
