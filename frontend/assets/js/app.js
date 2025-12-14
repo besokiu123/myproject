@@ -81,6 +81,7 @@ async function handleLogin(event) {
         const messageDiv = document.getElementById('message');
         if (result.success) {
             messageDiv.innerHTML = '<div class="alert alert-success">Đăng nhập thành công!</div>';
+            window.location.href = '/index.html'; // hoặc trang chủ bạn muốn chuyển tới
         } else {
             messageDiv.innerHTML = '<div class="alert alert-danger">' + (result.message || 'Đăng nhập thất bại') + '</div>';
         }
@@ -88,3 +89,4 @@ async function handleLogin(event) {
         console.error('Error logging in:', error);
     }
 }
+
