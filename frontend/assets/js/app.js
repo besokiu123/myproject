@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('loginForm')) {
         document.getElementById('loginForm').addEventListener('submit', handleLogin);
     }
+
+    if (document.getElementById('cartItems')) {
+        loadCart();
+    }
 });
 
 async function loadProducts() {
@@ -65,6 +69,40 @@ async function addToCart(id) {
     }
 }
 
+async function loadCart() {
+    const sessionId = getSessionId();
+    try {
+        const response = await fetch(API_BASE + 'get_cart.php', {
+            headers: {
+                'X-Session-Id': sessionId
+            }
+        });
+        const result = await response.json();
+        if (result.success) {
+            displayCart(result.items);
+        }
+    } catch (error) {
+        console.error('Error loading cart:', error);
+    }
+}
+
+function displayCart(items) {
+    const cartContainer = document.getElementById('cartItems');
+    if (!cartContainer) return;
+
+    if (items.length === 0) {
+        cartContainer.innerHTML = '<p>Giỏ hàng trống</p>';
+        return;
+    }
+
+    cartContainer.innerHTML = items.map(item => `
+        <div class="card mb-2 p-2">
+            <h5>${item.name}</h5>
+            <p>Giá: ${item.price.toLocaleString()} VND</p>
+            <p>Số lượng: ${item.quantity}</p>
+        </div>
+    `).join('');
+}
 
 async function handleLogin(event) {
     event.preventDefault();
@@ -81,7 +119,7 @@ async function handleLogin(event) {
         const messageDiv = document.getElementById('message');
         if (result.success) {
             messageDiv.innerHTML = '<div class="alert alert-success">Đăng nhập thành công!</div>';
-            window.location.href = '/index.html'; // hoặc trang chủ bạn muốn chuyển tới
+            window.location.href = '/index.html'; // chuyển trang sau login
         } else {
             messageDiv.innerHTML = '<div class="alert alert-danger">' + (result.message || 'Đăng nhập thất bại') + '</div>';
         }
@@ -89,4 +127,3 @@ async function handleLogin(event) {
         console.error('Error logging in:', error);
     }
 }
-
