@@ -1,5 +1,5 @@
-// app.js
-const API_BASE = '../backend/api/';
+const API_BASE = 'https://myproject-ww37.onrender.com/api/';
+
 
 document.addEventListener('DOMContentLoaded', function() {
     loadProducts();
